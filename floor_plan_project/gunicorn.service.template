@@ -1,0 +1,17 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/djaongo_floor_plan/floor_plan_project
+ExecStart=/home/ubuntu/djaongo_floor_plan/venv/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          floor_plan_project.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
