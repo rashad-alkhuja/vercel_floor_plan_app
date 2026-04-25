@@ -41,6 +41,9 @@
             <a href="{% url 'download-report' %}?year={{ selected_year }}" class="btn-primary"
                 style="background-color: #3498db; border: none; padding: 10px 20px; border-radius: 5px; color: white; text-decoration: none; font-weight: bold;">Download
                 Report</a>
+            <button type="button" onclick="document.getElementById('pdfFilterModal').style.display='flex'" class="btn-primary"
+                style="background-color: #e74c3c; border: none; padding: 10px 20px; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; display: inline-block;">Download
+                Leases PDF</button>
             <a href="{% url 'dashboard' %}" class="btn-secondary"
                 style="background-color: #95a5a6; border: none; padding: 10px 20px; border-radius: 5px; color: white; text-decoration: none;">Back
                 to Dashboard</a>
@@ -110,59 +113,60 @@
 
     <div class="table-card"
         style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h3
-            style="margin-top: 0; color: #2c3e50; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-            Detailed Cheque List ({{ selected_year }})</h3>
-        <table class="styled-table" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #f8f9fa; text-align: left;">
-                    <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Office</th>
-                    <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Due Date</th>
-                    <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Amount</th>
-                    <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Current Status</th>
-                    <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cheque in active_cheques %}
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px 15px; font-weight: 500;">{{ cheque.lease.office }}</td>
-                    <td style="padding: 12px 15px; color: #666;">{{ cheque.due_date|date:"M d, Y" }}</td>
-                    <td style="padding: 12px 15px; font-weight: bold; color: #2c3e50;">{{ cheque.amount|floatformat:2 }}
-                    </td>
-                    <td style="padding: 12px 15px;">
-                        <span class="status-badge status-{{ cheque.status|lower }}" style="padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; 
-                                  {% if cheque.status == 'Pending' %}background: #fff3cd; color: #856404;
-                                  {% elif cheque.status == 'Due' %}background: #d4edda; color: #155724;
-                                  {% elif cheque.status == 'Deposited' %}background: #d1ecf1; color: #0c5460;
-                                  {% elif cheque.status == 'Bounced' %}background: #f8d7da; color: #721c24;
-                                  {% else %}background: #e2e3e5; color: #383d41;{% endif %}
-                                  ">
-                            {{ cheque.status }}
-                        </span>
-                    </td>
-                    <td style="padding: 12px 15px;">
-                        <form action="{% url 'update-cheque-status' cheque.pk %}" method="post">
-                            {% csrf_token %}
-                            <select name="status" onchange="this.form.submit()"
-                                style="padding: 5px; border-radius: 4px; border: 1px solid #ddd; background: #fff;">
-                                <option value="{{ cheque.status }}" selected hidden>Update Status</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Deposited">Deposited</option>
-                                <option value="Cleared">Cleared</option>
-                                <option value="Bounced">Bounced</option>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #2c3e50; font-size: 1.2rem;">Detailed Cheque List ({{ selected_year }})</h3>
+            <button type="submit" form="bulk-update-form" class="btn-primary" style="background-color: #2ecc71; border: none; padding: 10px 20px; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; transition: background 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onmouseover="this.style.backgroundColor='#27ae60'" onmouseout="this.style.backgroundColor='#2ecc71'">Save All Changes</button>
+        </div>
+
+        <form id="bulk-update-form" action="{% url 'bulk-update-cheque-status' %}" method="post">
+            {% csrf_token %}
+            <table class="styled-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f8f9fa; text-align: left;">
+                        <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Office</th>
+                        <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Due Date</th>
+                        <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Amount</th>
+                        <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Current Status</th>
+                        <th style="padding: 12px 15px; color: #7f8c8d; font-weight: 600;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cheque in active_cheques %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 12px 15px; font-weight: 500;">{{ cheque.lease.office }}</td>
+                        <td style="padding: 12px 15px; color: #666;">{{ cheque.due_date|date:"M d, Y" }}</td>
+                        <td style="padding: 12px 15px; font-weight: bold; color: #2c3e50;">{{ cheque.amount|floatformat:2 }}
+                        </td>
+                        <td style="padding: 12px 15px;">
+                            <span class="status-badge status-{{ cheque.status|lower }}" style="padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; 
+                                      {% if cheque.status == 'Pending' %}background: #fff3cd; color: #856404;
+                                      {% elif cheque.status == 'Due' %}background: #d4edda; color: #155724;
+                                      {% elif cheque.status == 'Deposited' %}background: #d1ecf1; color: #0c5460;
+                                      {% elif cheque.status == 'Bounced' %}background: #f8d7da; color: #721c24;
+                                      {% else %}background: #e2e3e5; color: #383d41;{% endif %}
+                                      ">
+                                {{ cheque.status }}
+                            </span>
+                        </td>
+                        <td style="padding: 12px 15px;">
+                            <select name="status_{{ cheque.pk }}"
+                                style="padding: 8px; border-radius: 4px; border: 1px solid #ddd; background: #fff; width: 100%; cursor: pointer;">
+                                {% for status_val, status_name in cheque_statuses %}
+                                <option value="{{ status_val }}" {% if cheque.status == status_val %}selected{% endif %}>{{ status_name }}</option>
+                                {% endfor %}
                             </select>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" style="padding: 20px; text-align: center; color: #999;">There are no active cheques
-                        to display.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="padding: 20px; text-align: center; color: #999;">There are no active cheques
+                            to display.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
     </div>
 </div>
 
@@ -233,4 +237,43 @@
         }
     });
 </script>
+
+<!-- PDF Modal Filter -->
+<div id="pdfFilterModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:30px; width:400px; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <h2 style="margin-top:0; color:#2c3e50; font-size:1.5rem; margin-bottom:20px;">Download Report Options</h2>
+        <form action="{% url 'download-leases-pdf' %}" method="get">
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:#7f8c8d;">Office:</label>
+                <select name="office" style="width:100%; padding:10px; border-radius:5px; border:1px solid #bdc3c7;" aria-label="Select office">
+                    <option value="">All Offices</option>
+                    {% for office in all_offices %}
+                    <option value="{{ office.office_number }}">Office {{ office.office_number }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:#7f8c8d;">Cheque Status:</label>
+                <select name="status" style="width:100%; padding:10px; border-radius:5px; border:1px solid #bdc3c7;" aria-label="Select output parameter">
+                    <option value="">All Statuses</option>
+                    {% for status_val, status_name in cheque_statuses %}
+                    <option value="{{ status_val }}">{{ status_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:#7f8c8d;">Start Date:</label>
+                <input type="date" name="start_date" style="width:100%; padding:10px; border-radius:5px; border:1px solid #bdc3c7;" aria-label="Select minimum due date">
+            </div>
+            <div style="margin-bottom:25px;">
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:#7f8c8d;">End Date:</label>
+                <input type="date" name="end_date" style="width:100%; padding:10px; border-radius:5px; border:1px solid #bdc3c7;" aria-label="Select maximum due date">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" onclick="document.getElementById('pdfFilterModal').style.display='none'" style="padding:10px 20px; border:none; border-radius:5px; background:#bdc3c7; color:white; cursor:pointer; font-weight:bold;">Cancel</button>
+                <button type="submit" style="padding:10px 20px; border:none; border-radius:5px; background:#e74c3c; color:white; cursor:pointer; font-weight:bold;" onclick="document.getElementById('pdfFilterModal').style.display='none'">Download PDF</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

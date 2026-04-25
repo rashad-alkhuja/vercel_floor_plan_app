@@ -14,7 +14,7 @@ def is_accountant_or_manager(user):
 
 
 
-# This view handles the form submission when an accountant changes a cheque's status
+# This view handles the form submission when an accountant changes a single cheque's status
 @login_required
 @user_passes_test(is_accountant_or_manager)
 def update_cheque_status(request, pk):
@@ -28,6 +28,24 @@ def update_cheque_status(request, pk):
             cheque.last_updated_by = request.user
             cheque.save()
             
+    return redirect('cheque-dashboard')
+
+@login_required
+@user_passes_test(is_accountant_or_manager)
+def bulk_update_cheque_status(request):
+    if request.method == 'POST':
+        valid_statuses = [choice[0] for choice in Cheque.STATUS_CHOICES]
+        for key, value in request.POST.items():
+            if key.startswith('status_'):
+                cheque_id = key.split('_')[1]
+                try:
+                    cheque = Cheque.objects.get(pk=cheque_id)
+                    if value in valid_statuses and cheque.status != value:
+                        cheque.status = value
+                        cheque.last_updated_by = request.user
+                        cheque.save()
+                except Cheque.DoesNotExist:
+                    pass
     return redirect('cheque-dashboard')
 
 class ChequeDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -131,6 +149,9 @@ class ChequeDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
                 cashflow_labels.append(entry['month'].strftime('%b %Y'))
                 cashflow_data.append(float(entry['total']))
         
+        # Also add context for our PDF filter modal
+        all_offices = Office.objects.all().order_by('office_number')
+        
         context = {
             'active_cheques': detailed_cheques, # Renaming variable in template might be clearer, but keeping 'active_cheques' for min diff
             'total_rented_value': total_rented_value,
@@ -141,6 +162,9 @@ class ChequeDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
             # For Filter UI
             'available_years': available_years,
             'selected_year': selected_year,
+            # For PDF Filter Modal
+            'all_offices': all_offices,
+            'cheque_statuses': Cheque.STATUS_CHOICES,
             # Serialize for JS
             'status_data_json': json.dumps(status_data, cls=DjangoJSONEncoder),
             'cashflow_labels_json': json.dumps(cashflow_labels, cls=DjangoJSONEncoder),
@@ -178,4 +202,46 @@ def download_report(request):
             cheque.bank_name
         ])
 
+    return response
+
+from django.template.loader import render_to_string
+from weasyprint import HTML
+
+@login_required
+@user_passes_test(is_accountant_or_manager)
+def download_leases_pdf(request):
+    from .models import Lease, Cheque
+    from django.db.models import Prefetch
+
+    office_num = request.GET.get('office')
+    status = request.GET.get('status')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    cheques_query = Cheque.objects.all().order_by('due_date')
+    if status:
+        cheques_query = cheques_query.filter(status=status)
+    if start_date:
+        cheques_query = cheques_query.filter(due_date__gte=start_date)
+    if end_date:
+        cheques_query = cheques_query.filter(due_date__lte=end_date)
+
+    leases = Lease.objects.select_related('office').order_by('office__office_number')
+
+    if office_num:
+        leases = leases.filter(office__office_number=office_num)
+        
+    if status or start_date or end_date:
+        leases = leases.filter(cheques__in=cheques_query).distinct()
+        
+    leases = leases.prefetch_related(
+        Prefetch('cheques', queryset=cheques_query)
+    )
+    
+    html_string = render_to_string('accounting/leases_pdf.html', {'leases': leases})
+    
+    pdf_file = HTML(string=html_string).write_pdf()
+    
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="leases_report.pdf"'
     return response

@@ -1,51 +1,119 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Lease Proposal</title>
     <style>
-        @page { 
-            size: A4; 
-            margin: 0; /* Ensures header/footer can touch the edges */
+        @page {
+            size: A4;
+            margin: 0;
+            /* Ensures header/footer can touch the edges */
         }
-        body { 
-            font-family: sans-serif; 
-            font-size: 11pt; 
+
+        body {
+            font-family: sans-serif;
+            font-size: 11pt;
             color: #333;
-            margin: 0; /* CRITICAL FIX: Removes default body margin */
+            margin: 0;
+            /* CRITICAL FIX: Removes default body margin */
         }
-        .header { background-color: #0d244f; color: white; padding: 40px; }
-        .footer { 
-            position: fixed; 
-            bottom: 0; 
-            width: 100%; 
-            background-color: #0d244f; 
-            color: white; 
-            padding: 20px 40px; 
-            box-sizing: border-box; /* Ensures padding is included in the width */
-            display: flex; 
-            justify-content: space-around; 
-            font-size: 10pt; 
+
+        .header {
+            background-color: #0d244f;
+            color: white;
+            padding: 40px;
         }
-        .logo-container { text-align: right; margin: -70px 40px 20px 0; }
-        .logo-container img { max-width: 180px; } /* Adjust size as needed */
-        .container { padding: 20px 40px; }
-        h1 { font-size: 24pt; color: #0d244f; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 30px; }
-        h2 { font-size: 16pt; color: #0d244f; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 30px; }
-        p, li { line-height: 1.6; }
-        .info-item { margin-bottom: 10px; }
-        .info-item strong { display: inline-block; width: 150px; }
-        table { border-collapse: collapse; width: 40%; margin-top: 15px; }
-        th, td { border: 1px solid #999; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .notice { color: #d9534f; margin-top: 200px; text-align: center; font-size: 8pt; }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #0d244f;
+            color: white;
+            padding: 20px 40px;
+            box-sizing: border-box;
+            /* Ensures padding is included in the width */
+            display: flex;
+            justify-content: space-around;
+            font-size: 10pt;
+        }
+
+        .logo-container {
+            text-align: right;
+            margin: -70px 40px 20px 0;
+        }
+
+        .logo-container img {
+            max-width: 180px;
+        }
+
+        /* Adjust size as needed */
+        .container {
+            padding: 20px 40px;
+        }
+
+        h1 {
+            font-size: 24pt;
+            color: #0d244f;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 16pt;
+            color: #0d244f;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+
+        p,
+        li {
+            line-height: 1.6;
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+        }
+
+        .info-item strong {
+            display: inline-block;
+            width: 150px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 40%;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #999;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .notice {
+            color: #d9534f;
+            margin-top: 200px;
+            text-align: center;
+            font-size: 8pt;
+        }
     </style>
 </head>
+
 <body>
     <div class="header">
         <p>Date: {{ proposal_date }}</p>
     </div>
-    
+
     <!-- === LOGO FIX: Use an img tag with the provided path === -->
     <div class="logo-container">
         <img src=" {{ logo_path }} " alt="Rahet Albal Logo">
@@ -55,15 +123,26 @@
         <h1>Office-Space Lease Proposal</h1>
 
         <h2>Property Information</h2>
-        <p class="info-item"><strong>Property Name:</strong> Rahet Al Bal Business Center, Office No. {{ office.office_number }}</p>
+        <p class="info-item"><strong>Property Name:</strong> Rahet Al Bal Business Center, Office No. {{
+            office.office_number }}</p>
         <p class="info-item"><strong>Property Address:</strong> FLOOR 21ST, COURT TOWER, BUSINESS BAY, DUBAI, UAE</p>
-        
+
         <h2>Units Information</h2>
         <table>
-            <thead><tr><th>Office NO.</th><th>Carpet area (sqft)</th></tr></thead>
-            <tbody><tr><td>{{ office.office_number }}</td><td>{{ office.size_sqft }}</td></tr></tbody>
+            <thead>
+                <tr>
+                    <th>Office NO.</th>
+                    <th>Carpet area (sqft)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ office.office_number }}</td>
+                    <td>{{ office.size_sqft }}</td>
+                </tr>
+            </tbody>
         </table>
-        
+
         <h2>Lease Terms</h2>
         <ul>
             <li>Proposed Lease Term: {{ proposal.proposed_lease_term }}</li>
@@ -77,7 +156,8 @@
         <p class="info-item"><strong>Phone Number:</strong> {{ proposal.phone_number }}</p>
 
         <p class="notice">
-            Notice: this quotation is valid for 3 days from the date of the issuance and is subject to the availability of the quoted office.
+            Notice: this quotation is valid for 3 days from the date of the issuance and is subject to the availability
+            of the quoted office.
         </p>
     </div>
 
@@ -88,4 +168,5 @@
         <span>info@rahetalbalbusiness.com</span>
     </div>
 </body>
+
 </html>

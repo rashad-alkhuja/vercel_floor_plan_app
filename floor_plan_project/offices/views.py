@@ -118,3 +118,31 @@ def download_available_offices_pdf(request):
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="Available-Offices-List.pdf"'
     return response
+
+@login_required(login_url='/login/')
+@user_passes_test(is_manager, login_url='/dashboard/')
+def download_rented_offices_pdf(request):
+    # 1. Fetch rented offices
+    rented_offices = Office.objects.filter(status='rented').order_by('office_number')
+    
+    # 2. Prepare the logo path (Windows-safe)
+    logo_path_obj = Path(settings.STATICFILES_DIRS[0]) / 'offices/images/Rahet-Logo.png'
+    logo_uri = logo_path_obj.as_uri()
+    
+    # 3. Prepare context
+    context = {
+        'offices': rented_offices,
+        'logo_path': logo_uri,
+        'generation_date': datetime.date.today().strftime("%d/%m/%Y"),
+    }
+
+    # 4. Render HTML
+    html_string = render_to_string('offices/rented_offices_pdf.html', context)
+    
+    # 5. Generate PDF
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+
+    # 6. Return response
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Rented-Offices-List.pdf"'
+    return response

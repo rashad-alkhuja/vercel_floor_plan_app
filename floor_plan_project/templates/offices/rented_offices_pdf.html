@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Rented Offices Report</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: sans-serif;
+            font-size: 11pt;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4c2a85;
+            padding-bottom: 20px;
+        }
+
+        .logo {
+            height: 60px;
+        }
+
+        .title-section {
+            text-align: right;
+        }
+
+        h1 {
+            color: #4c2a85;
+            margin: 0;
+            font-size: 22pt;
+        }
+
+        .date {
+            color: #666;
+            font-size: 10pt;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            color: #4c2a85;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 9pt;
+            color: #999;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .count-summary {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: right;
+            font-size: 12pt;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <img src="{{ logo_path }}" class="logo" alt="Logo">
+        <div class="title-section">
+            <h1>Rented Offices</h1>
+            <div class="date">Generated on: {{ generation_date }}</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Office Number</th>
+                <th>Company Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Size (sqft)</th>
+                <th>Rent Amount (AED)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for office in offices %}
+            <tr>
+                <td><strong>Office {{ office.office_number }}</strong></td>
+                <td>{{ office.company_name|default:"-" }}</td>
+                <td>{{ office.start_date|date:"d M Y"|default:"-" }}</td>
+                <td>{{ office.expiry_date|date:"d M Y"|default:"-" }}</td>
+                <td>{{ office.size_sqft|floatformat:2 }}</td>
+                <td>{{ office.annual_rent }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 20px;">No rented offices currently.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="count-summary">
+        Total Rented: {{ offices|length }}
+    </div>
+
+    <!---- <div class="footer">
+        Rahet Al Bal Business Center - 21st Floor, Court Tower, Business Bay, Dubai
+    </div>-->
+</body>
+
+</html>

@@ -5,8 +5,8 @@ from .models import Office
 
 @admin.register(Office)
 class OfficeAdmin(admin.ModelAdmin):
-    list_display = ('office_number', 'status', 'expiry_date', 'company_name', 'contact_person', 'size_sqft')
-    list_editable = ('status', 'expiry_date',)
+    list_display = ('office_number', 'status', 'start_date', 'expiry_date', 'company_name', 'contact_person', 'size_sqft')
+    list_editable = ('status', 'start_date', 'expiry_date',)
     list_filter = ('status',)
     ordering = ('office_number',)
     
@@ -16,7 +16,7 @@ class OfficeAdmin(admin.ModelAdmin):
             'fields': ('office_number', 'size_sqft', 'annual_rent')
         }),
         ('Lease Status', {
-            'fields': ('status', 'expiry_date')
+            'fields': ('status', 'start_date', 'expiry_date')
         }),
         ('Tenant Information (for Rented Offices)', {
             'fields': ('company_name', 'contact_person', 'contact_email', 'contact_phone')

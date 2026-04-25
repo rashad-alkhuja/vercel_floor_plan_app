@@ -14,6 +14,7 @@ class Office(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='available')
 
     # --- ADD THIS NEW FIELD ---
+    start_date = models.DateField(null=True, blank=True, help_text="The date the current lease started.")
     expiry_date = models.DateField(null=True, blank=True, help_text="The date the current lease expires.")
     # --------------------------
     company_name = models.CharField(max_length=200, blank=True, null=True)

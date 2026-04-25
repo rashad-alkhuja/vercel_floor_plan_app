@@ -9,9 +9,14 @@
     <div class="floor-plan-header">
         <div>
             <h2>Interactive Floor Plan</h2>
-            <a href="{% url 'download-available-offices' %}" class="download-btn">
-                <i class="fa-solid fa-file-pdf"></i> Download Available List
-            </a>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'download-available-offices' %}" class="download-btn">
+                    <i class="fa-solid fa-file-pdf"></i> Download Available List
+                </a>
+                <a href="{% url 'download-rented-offices' %}" class="download-btn" style="background-color: #2c9a41; border-color: #2c9a41;">
+                    <i class="fa-solid fa-file-pdf"></i> Download Rented List
+                </a>
+            </div>
         </div>
         <div class="legend">
             <div class="legend-item">
