@@ -205,7 +205,6 @@ def download_report(request):
     return response
 
 from django.template.loader import render_to_string
-from weasyprint import HTML
 
 @login_required
 @user_passes_test(is_accountant_or_manager)
@@ -240,6 +239,7 @@ def download_leases_pdf(request):
     
     html_string = render_to_string('accounting/leases_pdf.html', {'leases': leases})
     
+    from weasyprint import HTML
     pdf_file = HTML(string=html_string).write_pdf()
     
     response = HttpResponse(pdf_file, content_type='application/pdf')

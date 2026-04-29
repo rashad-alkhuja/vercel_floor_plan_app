@@ -12,7 +12,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from weasyprint import HTML
+
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -72,6 +72,7 @@ def generate_pdf_view(request, office_number):
                 'logo_path': logo_uri,
             }
             html_string = render_to_string('offices/proposal_pdf_template.html', context)
+            from weasyprint import HTML
             pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
             response = HttpResponse(pdf_file, content_type='application/pdf')
             response['Content-Disposition'] = f'attachment; filename="Lease-Proposal-Office-{office.office_number}.pdf"'
@@ -112,6 +113,7 @@ def download_available_offices_pdf(request):
     html_string = render_to_string('offices/available_offices_pdf.html', context)
     
     # 5. Generate PDF
+    from weasyprint import HTML
     pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
     # 6. Return response
@@ -140,6 +142,7 @@ def download_rented_offices_pdf(request):
     html_string = render_to_string('offices/rented_offices_pdf.html', context)
     
     # 5. Generate PDF
+    from weasyprint import HTML
     pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
     # 6. Return response
