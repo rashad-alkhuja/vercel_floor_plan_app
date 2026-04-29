@@ -6,9 +6,13 @@ class BookingsConfig(AppConfig):
     name = 'bookings'
 
     def ready(self):
-        from django.contrib.auth.models import Group
-        
-        # Define the roles for the application (removed 'Tenant' role)
-        groups = ["Manager", "Reception", "Accountant"]
-        for group_name in groups:
-            Group.objects.get_or_create(name=group_name)
+        try:
+            from django.contrib.auth.models import Group
+            
+            # Define the roles for the application (removed 'Tenant' role)
+            groups = ["Manager", "Reception", "Accountant"]
+            for group_name in groups:
+                Group.objects.get_or_create(name=group_name)
+        except Exception:
+            # Database tables may not exist yet (e.g., during build or before migrations)
+            pass
